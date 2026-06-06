@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Diário · Fome Hedônica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: rgb(58,173,171);
+  --teal-dark: rgb(35,120,118);
+  --mint: rgb(181,216,193);
+  --gold: #f2dc6d;
+  --amber: #f2a03d;
+  --bg: #f7f5f2;
+  --surface: #ffffff;
+  --text: #1a2020;
+  --text-soft: #5a6e6d;
+  --radius: 16px;
+  --shadow: 0 4px 32px rgba(58,173,171,0.08);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; font-size:15px; padding-bottom:80px;
+}
+
+/* LOGIN */
+#login-screen {
+  position:fixed; inset:0;
+  background:linear-gradient(160deg, rgb(58,173,171) 0%, rgb(35,120,118) 100%);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px 28px; text-align:center; z-index:1000;
+}
+.login-circle {
+  width:80px; height:80px;
+  background:rgba(255,255,255,0.15);
+  border:2px solid rgba(255,255,255,0.3);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; margin-bottom:28px;
+}
+.login-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:32px; font-weight:300; color:#fff; margin-bottom:6px; line-height:1.1;
+}
+.login-title em { font-style:italic; color:var(--gold); }
+.login-sub { font-size:13px; color:rgba(255,255,255,0.75); margin-bottom:40px; line-height:1.5; }
+.login-label {
+  width:100%; max-width:320px; text-align:left;
+  font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  color:rgba(255,255,255,0.7); margin-bottom:8px;
+}
+.login-input {
+  width:100%; max-width:320px; padding:15px 18px;
+  background:rgba(255,255,255,0.15);
+  border:1.5px solid rgba(255,255,255,0.3);
+  border-radius:12px; color:#fff;
+  font-family:'DM Sans',sans-serif; font-size:16px;
+  letter-spacing:3px; text-align:center; outline:none;
+  margin-bottom:14px; -webkit-appearance:none;
+}
+.login-input::placeholder { color:rgba(255,255,255,0.4); letter-spacing:1px; font-size:13px; }
+.login-input:focus { border-color:var(--gold); background:rgba(255,255,255,0.2); }
+.login-btn {
+  width:100%; max-width:320px; padding:16px;
+  background:var(--gold); color:#1a2020; border:none; border-radius:12px;
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
+  cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.15);
+  transition:transform 0.15s;
+}
+.login-btn:active { transform:scale(0.98); }
+.login-error { color:var(--gold); font-size:12px; margin-top:10px; min-height:18px; }
+.login-hint { font-size:11px; color:rgba(255,255,255,0.45); margin-top:20px; }
+
+/* NO-TOKEN WARNING */
+#notoken-screen {
+  position:fixed; inset:0;
+  background:var(--bg);
+  display:none; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px 28px; text-align:center; z-index:999;
+}
+.notoken-box {
+  background:#fff; border-radius:20px; padding:36px 28px;
+  border:1px solid rgba(242,160,61,0.3); max-width:380px; width:100%;
+}
+.notoken-icon { font-size:44px; margin-bottom:16px; }
+.notoken-title { font-family:'Cormorant Garamond',serif; font-size:24px; margin-bottom:10px; }
+.notoken-msg { font-size:13px; color:var(--text-soft); line-height:1.6; margin-bottom:20px; }
+.notoken-code {
+  background:var(--bg); border-radius:8px; padding:12px;
+  font-family:monospace; font-size:13px; color:var(--teal);
+  word-break:break-all; margin-bottom:20px; text-align:left;
+}
+.notoken-btn {
+  display:inline-block; padding:12px 24px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+  color:#fff; border:none; border-radius:10px;
+  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500;
+  cursor:pointer; text-decoration:none;
+}
+
+/* HEADER */
+header {
+  background:linear-gradient(135deg, rgb(58,173,171) 0%, rgb(40,140,138) 100%);
+  padding:32px 24px 36px; text-align:center;
+  position:relative; overflow:hidden;
+}
+header::before {
+  content:''; position:absolute; top:-50px; right:-50px;
+  width:180px; height:180px; border-radius:50%;
+  background:rgba(242,220,109,0.12);
+}
+header::after {
+  content:''; position:absolute; bottom:-40px; left:-40px;
+  width:130px; height:130px; border-radius:50%;
+  background:rgba(181,216,193,0.18);
+}
+.header-pill {
+  display:inline-block;
+  background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3);
+  border-radius:100px; padding:4px 14px;
+  font-size:10px; letter-spacing:2px; text-transform:uppercase;
+  color:rgba(255,255,255,0.9); margin-bottom:10px; font-weight:500;
+}
+.header-id {
+  display:inline-block;
+  background:rgba(242,220,109,0.2); border:1px solid rgba(242,220,109,0.4);
+  border-radius:100px; padding:3px 12px;
+  font-size:11px; color:var(--gold); margin-bottom:12px;
+  font-weight:500; letter-spacing:1px;
+}
+header h1 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:34px; font-weight:300; color:#fff; line-height:1.1; letter-spacing:-0.5px;
+}
+header h1 em { font-style:italic; font-weight:400; color:var(--gold); }
+header p { margin-top:8px; color:rgba(255,255,255,0.75); font-size:12px; font-weight:300; }
+
+/* TABS */
+.tabs {
+  display:flex; background:var(--surface);
+  border-bottom:1px solid rgba(58,173,171,0.12);
+  overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,0.06);
+}
+.tabs::-webkit-scrollbar { display:none; }
+.tab-btn {
+  flex:1; min-width:75px; padding:13px 6px;
+  border:none; background:none;
+  font-family:'DM Sans',sans-serif; font-size:10px;
+  letter-spacing:1px; text-transform:uppercase;
+  color:var(--text-soft); cursor:pointer;
+  transition:all 0.2s; border-bottom:2px solid transparent; white-space:nowrap;
+}
+.tab-btn.active { color:var(--teal); border-bottom-color:var(--teal); font-weight:500; }
+
+/* SECTIONS */
+main { padding:0; }
+.section { display:none; padding:22px 18px; }
+.section.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* CARDS */
+.card {
+  background:var(--surface); border-radius:var(--radius);
+  padding:20px 18px; margin-bottom:14px;
+  box-shadow:var(--shadow); border:1px solid rgba(181,216,193,0.3);
+}
+.card-title { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:400; margin-bottom:3px; }
+.card-sub { font-size:12px; color:var(--text-soft); margin-bottom:14px; font-weight:300; }
+
+/* FORM */
+label {
+  display:block; font-size:10px; letter-spacing:1.2px; text-transform:uppercase;
+  color:var(--text-soft); margin-bottom:6px; font-weight:500;
+}
+input[type=text], input[type=time], textarea {
+  width:100%; padding:12px 14px;
+  border:1.5px solid rgba(58,173,171,0.2); border-radius:10px;
+  font-family:'DM Sans',sans-serif; font-size:14px;
+  color:var(--text); background:var(--bg); outline:none;
+  transition:border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance:none; margin-bottom:14px;
+}
+input:focus, textarea:focus {
+  border-color:var(--teal); box-shadow:0 0 0 3px rgba(58,173,171,0.1); background:#fff;
+}
+textarea { resize:vertical; min-height:72px; line-height:1.5; }
+
+/* CHIPS */
+.chips { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.chip {
+  padding:7px 13px; border-radius:100px;
+  border:1.5px solid rgba(58,173,171,0.22); background:transparent;
+  font-family:'DM Sans',sans-serif; font-size:12px;
+  color:var(--text-soft); cursor:pointer; transition:all 0.2s;
+}
+.chip.selected { background:var(--teal); color:#fff; border-color:var(--teal); }
+
+/* SLIDER */
+.slider-wrap { margin-bottom:14px; }
+.slider-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--text-soft); margin-bottom:6px; }
+input[type=range] {
+  width:100%; height:4px; -webkit-appearance:none;
+  background:linear-gradient(to right, var(--teal) 50%, rgba(58,173,171,0.2) 50%);
+  border-radius:10px; outline:none; border:none; padding:0; margin-bottom:0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+  background:var(--teal); border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(58,173,171,0.4); cursor:pointer;
+}
+.slider-value {
+  text-align:center; font-size:26px;
+  font-family:'Cormorant Garamond',serif; color:var(--teal); margin-top:8px;
+}
+
+/* BUTTONS */
+.btn-primary {
+  width:100%; padding:15px;
+  background:linear-gradient(135deg, rgb(58,173,171), rgb(40,140,138));
+  color:#fff; border:none; border-radius:var(--radius);
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500;
+  cursor:pointer; transition:transform 0.15s;
+  box-shadow:0 4px 16px rgba(58,173,171,0.3); letter-spacing:0.3px;
+}
+.btn-primary:active { transform:scale(0.98); }
+.btn-primary:disabled { opacity:0.6; pointer-events:none; }
+
+/* SYNC STATUS */
+.sync-status {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 14px; border-radius:10px;
+  font-size:12px; margin-top:10px;
+}
+.sync-ok      { background:rgba(181,216,193,0.2); color:var(--teal-dark); border:1px solid rgba(181,216,193,0.4); }
+.sync-err     { background:rgba(242,160,61,0.1);  color:var(--amber);     border:1px solid rgba(242,160,61,0.2); }
+.sync-loading { background:rgba(58,173,171,0.08); color:var(--teal);      border:1px solid rgba(58,173,171,0.2); }
+.sync-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.dot-ok      { background:var(--teal); }
+.dot-err     { background:var(--amber); }
+.dot-loading { background:var(--teal); animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+/* HISTORY */
+.history-item {
+  background:var(--surface); border-radius:var(--radius);
+  padding:15px 16px; margin-bottom:10px;
+  border-left:3px solid var(--teal); box-shadow:var(--shadow);
+}
+.history-date { font-size:10px; color:var(--text-soft); letter-spacing:0.5px; }
+.history-emotion { display:inline-block; margin-top:5px; padding:3px 9px; background:rgba(58,173,171,0.1); border-radius:100px; font-size:11px; color:var(--teal); }
+.history-trigger { font-size:13px; margin-top:6px; color:var(--text); line-height:1.4; }
+.history-int  { font-size:11px; color:var(--text-soft); margin-top:4px; }
+.history-res  { font-size:12px; color:var(--teal-dark); margin-top:3px; font-style:italic; }
+
+/* INSIGHTS */
+.insight-card { border-radius:var(--radius); padding:18px; margin-bottom:12px; }
+.insight-card.teal { background:rgba(58,173,171,0.08); border:1px solid rgba(58,173,171,0.18); }
+.insight-card.mint { background:rgba(181,216,193,0.18); border:1px solid rgba(181,216,193,0.35); }
+.insight-card.gold { background:rgba(242,220,109,0.1);  border:1px solid rgba(242,220,109,0.25); }
+.insight-number { font-family:'Cormorant Garamond',serif; font-size:44px; font-weight:300; color:var(--teal); }
+.insight-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-soft); margin-top:2px; }
+.insight-detail { font-size:13px; color:var(--text); margin-top:8px; }
+.bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.bar-label { min-width:90px; font-size:11px; color:var(--text); }
+.bar-bg { flex:1; height:6px; background:rgba(58,173,171,0.1); border-radius:10px; overflow:hidden; }
+.bar-fill { height:100%; background:var(--teal); border-radius:10px; }
+.bar-count { font-size:10px; color:var(--text-soft); min-width:22px; text-align:right; }
+
+/* WEEKLY */
+.rating-row { display:flex; gap:8px; margin-bottom:14px; }
+.rating-btn {
+  flex:1; padding:12px 4px; border:1.5px solid rgba(58,173,171,0.2);
+  border-radius:10px; background:transparent; font-size:20px;
+  cursor:pointer; transition:all 0.2s;
+}
+.rating-btn.selected { border-color:var(--teal); background:rgba(58,173,171,0.1); transform:scale(1.08); }
+
+/* TITLE */
+.section-title { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:400; margin-bottom:4px; }
+.section-desc  { font-size:12px; color:var(--text-soft); margin-bottom:18px; line-height:1.5; font-weight:300; }
+
+/* EMPTY */
+.empty-state { text-align:center; padding:44px 16px; color:var(--text-soft); }
+.empty-icon  { font-size:38px; margin-bottom:10px; }
+.empty-state p { font-size:13px; line-height:1.6; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:90px; left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--text); color:#fff;
+  padding:11px 20px; border-radius:100px;
+  font-size:12px; z-index:999;
+  transition:transform 0.3s; white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NO TOKEN WARNING -->
+<div id="notoken-screen">
+  <div class="notoken-box">
+    <div class="notoken-icon">⚙️</div>
+    <div class="notoken-title">Configuração necessária</div>
+    <p class="notoken-msg">
+      Este dispositivo ainda não foi configurado.<br>
+      Abra o arquivo <strong>SETUP-LOCAL.html</strong> no seu navegador para configurar o sistema uma única vez.
+    </p>
+    <p class="notoken-msg" style="font-size:11px">Se você é paciente, peça para sua nutricionista configurar o aplicativo no seu celular.</p>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen" style="display:none">
+  <div class="login-circle">🌿</div>
+  <h1 class="login-title">Controle da<br><em>Fome Hedônica</em></h1>
+  <p class="login-sub">Seu diário personalizado.<br>Insira o código enviado pela sua nutricionista.</p>
+  <div class="login-label">Seu código de acesso</div>
+  <input type="text" class="login-input" id="patient-id-input"
+    placeholder="ex: PAC001"
+    autocomplete="off" autocapitalize="characters" spellcheck="false"
+    onkeydown="if(event.key==='Enter') doLogin()">
+  <button class="login-btn" onclick="doLogin()">Entrar no meu diário</button>
+  <div class="login-error" id="login-error"></div>
+  <p class="login-hint">Lany Nutrição · Taylan Souza</p>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <header>
+    <div class="header-pill">Lany Nutrição</div>
+    <div class="header-id" id="header-id"></div>
+    <h1>Como está<br>seu <em>corpo</em> agora?</h1>
+    <p>Registre, entenda, transforme.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('registro',this)">✍️ Registro</button>
+    <button class="tab-btn" onclick="showTab('historico',this)">📋 Histórico</button>
+    <button class="tab-btn" onclick="showTab('insights',this)">📊 Padrões</button>
+    <button class="tab-btn" onclick="showTab('semanal',this)">🌿 Semanal</button>
+  </div>
+
+  <main>
+    <!-- REGISTRO -->
+    <div id="tab-registro" class="section active">
+      <p class="section-title">Novo Registro</p>
+      <p class="section-desc">Preencha sempre que sentir uma vontade fora do habitual ou por impulso.</p>
+
+      <div class="card">
+        <div class="card-title">O que aconteceu?</div>
+        <div class="card-sub">Contexto e vontade</div>
+        <label>Horário</label>
+        <input type="time" id="reg-time">
+        <label>Vontade de comer</label>
+        <input type="text" id="reg-food" placeholder="ex: chocolate, salgado, doce…">
+        <label>O que estava acontecendo antes?</label>
+        <textarea id="reg-context" placeholder="Situação, pensamento, local…"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Como você estava se sentindo?</div>
+        <div class="card-sub">Selecione uma ou mais</div>
+        <div class="chips" id="emotion-chips">
+          <button class="chip" onclick="toggleChip(this)">😟 Ansiosa</button>
+          <button class="chip" onclick="toggleChip(this)">😔 Triste</button>
+          <button class="chip" onclick="toggleChip(this)">😤 Frustrada</button>
+          <button class="chip" onclick="toggleChip(this)">😴 Cansada</button>
+          <button class="chip" onclick="toggleChip(this)">😰 Estressada</button>
+          <button class="chip" onclick="toggleChip(this)">😐 Entediada</button>
+          <button class="chip" onclick="toggleChip(this)">😠 Com raiva</button>
+          <button class="chip" onclick="toggleChip(this)">🤗 Animada</button>
+          <button class="chip" onclick="toggleChip(this)">😌 Solitária</button>
+          <button class="chip" onclick="toggleChip(this)">🌀 Sobrecarregada</button>
+        </div>
+        <label>Outra emoção</label>
+        <input type="text" id="reg-emotion-other" placeholder="Descreva…">
+      </div>
+
+      <div class="card">
+        <div class="card-title">Intensidade do desejo</div>
+        <div class="card-sub">0 = consigo ignorar · 10 = irresistível</div>
+        <div class="slider-wrap">
+          <div class="slider-labels"><span>0 · Leve</span><span>10 · Irresistível</span></div>
+          <input type="range" min="0" max="10" value="5" id="reg-intensity" oninput="updateSlider(this)">
+          <div class="slider-value" id="intensity-val">5</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ambiente</div>
+        <div class="card-sub">Onde você estava?</div>
+        <div class="chips" id="env-chips">
+          <button class="chip" onclick="toggleSingle(this,'env-chips')">🏠 Em casa</button>
+          <button class="chip" onclick="toggleSingle(this,'env-chips')">💼 Trabalho</button>
+          <button class="chip" onclick="toggleSingle(this,'env-chips')">🚗 No carro</button>
+          <button class="chip" onclick="toggleSingle(this,'env-chips')">📱 Nas redes</button>
+          <button class="chip" onclick="toggleSingle(this,'env-chips')">🍽️ Restaurante</button>
+          <button class="chip" onclick="toggleSingle(this,'env-chips')">🌙 À noite</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Como você lidou?</div>
+        <div class="card-sub">O que fez após perceber?</div>
+        <div class="chips" id="action-chips">
+          <button class="chip" onclick="toggleSingle(this,'action-chips')">✅ Comi e me permiti</button>
+          <button class="chip" onclick="toggleSingle(this,'action-chips')">🔄 Substituí atividade</button>
+          <button class="chip" onclick="toggleSingle(this,'action-chips')">⏸️ Esperei 10 min</button>
+          <button class="chip" onclick="toggleSingle(this,'action-chips')">🗣️ Conversei</button>
+          <button class="chip" onclick="toggleSingle(this,'action-chips')">🚶 Me mexi</button>
+          <button class="chip" onclick="toggleSingle(this,'action-chips')">❌ Não resisti</button>
+        </div>
+        <label>Outro</label>
+        <textarea id="reg-action-other" placeholder="Descreva…" style="min-height:54px"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-title">O que te gera prazer além de comer?</div>
+        <div class="card-sub">Alternativa que poderia ter usado</div>
+        <textarea id="reg-alternative" placeholder="ex: passear com os cachorros, ouvir música, ler…" style="min-height:54px"></textarea>
+      </div>
+
+      <button class="btn-primary" id="save-btn" onclick="saveEntry()">💾 Salvar Registro</button>
+      <div id="sync-status" style="display:none"></div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div id="tab-historico" class="section">
+      <p class="section-title">Histórico</p>
+      <p class="section-desc">Seus registros organizados por data.</p>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div id="tab-insights" class="section">
+      <p class="section-title">Seus Padrões</p>
+      <p class="section-desc">O que está por trás das suas vontades.</p>
+      <div id="insights-content"></div>
+    </div>
+
+    <!-- SEMANAL -->
+    <div id="tab-semanal" class="section">
+      <p class="section-title">Autoavaliação Semanal</p>
+      <p class="section-desc">Um olhar suave sobre a semana. Sem julgamento.</p>
+      <div class="card">
+        <div class="card-title">Como foi a semana?</div>
+        <div class="card-sub">Primeira impressão</div>
+        <div class="rating-row">
+          <button class="rating-btn" id="week-r1" onclick="selectRating('week',1)">😞</button>
+          <button class="rating-btn" id="week-r2" onclick="selectRating('week',2)">😕</button>
+          <button class="rating-btn" id="week-r3" onclick="selectRating('week',3)">😐</button>
+          <button class="rating-btn" id="week-r4" onclick="selectRating('week',4)">🙂</button>
+          <button class="rating-btn" id="week-r5" onclick="selectRating('week',5)">😊</button>
+        </div>
+        <label>O que foi positivo?</label>
+        <textarea id="week-positive" placeholder="Pequenas vitórias contam muito…"></textarea>
+        <label>O que foi desafiador?</label>
+        <textarea id="week-challenge" placeholder="Situações difíceis…"></textarea>
+        <label>O que faria diferente?</label>
+        <textarea id="week-next" placeholder="Um passo pequeno já é suficiente…"></textarea>
+        <label>Relação com a comida esta semana</label>
+        <div class="rating-row">
+          <button class="rating-btn" id="food-r1" onclick="selectRating('food',1)">🌑</button>
+          <button class="rating-btn" id="food-r2" onclick="selectRating('food',2)">🌒</button>
+          <button class="rating-btn" id="food-r3" onclick="selectRating('food',3)">🌓</button>
+          <button class="rating-btn" id="food-r4" onclick="selectRating('food',4)">🌔</button>
+          <button class="rating-btn" id="food-r5" onclick="selectRating('food',5)">🌕</button>
+        </div>
+        <label>Uma mensagem gentil para você mesma</label>
+        <textarea id="week-message" placeholder="Escreva algo com carinho…" style="min-height:64px"></textarea>
+      </div>
+      <button class="btn-primary" id="weekly-btn" onclick="saveWeekly()"
+        style="background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a2020;box-shadow:0 4px 16px rgba(242,160,61,0.3)">
+        🌿 Salvar Autoavaliação
+      </button>
+      <div id="weekly-sync" style="display:none; margin-top:10px"></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG — token read from localStorage, never hardcoded ══
+const GITHUB_OWNER  = 'taylanbs';
+const GITHUB_REPO   = 'estrategia-fome-hedonica';
+const GITHUB_BRANCH = 'main';
+function getToken() { return localStorage.getItem('lany_gh_token'); }
+
+// ══ STATE ══
+let currentPatientId = null;
+let ratings = { week:0, food:0 };
+
+// ══ INIT ══
+window.addEventListener('DOMContentLoaded', () => {
+  const token = getToken();
+  if (!token) {
+    document.getElementById('notoken-screen').style.display = 'flex';
+    return;
+  }
+
+  const savedId = localStorage.getItem('fh_patient_id');
+  if (savedId) {
+    currentPatientId = savedId;
+    showApp(savedId);
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+
+  const now = new Date();
+  document.getElementById('reg-time').value = now.toTimeString().slice(0,5);
+});
+
+function showApp(id) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('notoken-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('header-id').textContent = id;
+  const now = new Date();
+  document.getElementById('reg-time').value = now.toTimeString().slice(0,5);
+}
+
+function doLogin() {
+  const raw = document.getElementById('patient-id-input').value.trim().toUpperCase();
+  if (!raw) { document.getElementById('login-error').textContent = 'Insira seu código de acesso.'; return; }
+  currentPatientId = raw;
+  localStorage.setItem('fh_patient_id', raw);
+  showApp(raw);
+}
+
+// ══ TABS ══
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='historico') renderHistory();
+  if (id==='insights')  renderInsights();
+}
+
+// ══ CHIPS ══
+function toggleChip(el)        { el.classList.toggle('selected'); }
+function toggleSingle(el, gId) {
+  document.querySelectorAll('#'+gId+' .chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ══ SLIDER ══
+function updateSlider(el) {
+  document.getElementById('intensity-val').textContent = el.value;
+  const pct = el.value * 10;
+  el.style.background = `linear-gradient(to right, var(--teal) ${pct}%, rgba(58,173,171,0.2) ${pct}%)`;
+}
+
+// ══ RATING ══
+function selectRating(type, val) {
+  ratings[type] = val;
+  for (let i=1;i<=5;i++) {
+    const b = document.getElementById(type+'-r'+i);
+    if(b) b.classList.toggle('selected', i===val);
+  }
+}
+
+// ══ GITHUB API ══
+function ghPath(filename) {
+  return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/dados/${filename}`;
+}
+async function ghRead(filename) {
+  const res = await fetch(ghPath(filename), {
+    headers:{ 'Authorization':`token ${getToken()}`, 'Accept':'application/vnd.github.v3+json' }
+  });
+  if (res.status===404) return { content:null, sha:null };
+  if (!res.ok) throw new Error('Erro ao ler: '+res.status);
+  const json = await res.json();
+  return { content: JSON.parse(atob(json.content.replace(/\n/g,''))), sha: json.sha };
+}
+async function ghWrite(filename, data, sha) {
+  const body = {
+    message: `update: ${filename} [${new Date().toISOString()}]`,
+    content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
+    branch: GITHUB_BRANCH
+  };
+  if (sha) body.sha = sha;
+  const res = await fetch(ghPath(filename), {
+    method:'PUT',
+    headers:{
+      'Authorization':`token ${getToken()}`,
+      'Content-Type':'application/json',
+      'Accept':'application/vnd.github.v3+json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e=await res.json(); throw new Error(e.message||'Erro ao salvar'); }
+}
+
+// ══ SAVE ENTRY ══
+async function saveEntry() {
+  const emotions = [...document.querySelectorAll('#emotion-chips .chip.selected')].map(c=>c.textContent.trim());
+  const other = document.getElementById('reg-emotion-other').value.trim();
+  if (other) emotions.push(other);
+
+  const entry = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    time: document.getElementById('reg-time').value,
+    food: document.getElementById('reg-food').value.trim(),
+    context: document.getElementById('reg-context').value.trim(),
+    emotions,
+    intensity: document.getElementById('reg-intensity').value,
+    environment: document.querySelector('#env-chips .chip.selected')?.textContent?.trim()||'',
+    action: document.querySelector('#action-chips .chip.selected')?.textContent?.trim()||document.getElementById('reg-action-other').value.trim(),
+    alternative: document.getElementById('reg-alternative').value.trim()
+  };
+
+  if (!entry.food && !entry.context) { showToast('Preencha ao menos a vontade ou o contexto ✨'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='⏳ Salvando…';
+  setSyncStatus('loading','Sincronizando com a nutricionista…');
+
+  try {
+    const filename = `${currentPatientId}.json`;
+    const { content, sha } = await ghRead(filename);
+    const current = content || { patientId:currentPatientId, entries:[], updatedAt:null };
+    current.entries.unshift(entry);
+    current.updatedAt = new Date().toISOString();
+    await ghWrite(filename, current, sha);
+    localStorage.setItem('fh_local_'+currentPatientId, JSON.stringify(current.entries));
+    resetForm();
+    setSyncStatus('ok','Salvo e sincronizado ✓ Taylan já pode ver.');
+    showToast('Registro salvo! 🌿');
+  } catch(e) {
+    console.error(e);
+    const local = JSON.parse(localStorage.getItem('fh_local_'+currentPatientId)||'[]');
+    local.unshift(entry);
+    localStorage.setItem('fh_local_'+currentPatientId, JSON.stringify(local));
+    setSyncStatus('err','Salvo localmente. Sem conexão no momento.');
+    showToast('Salvo no celular.');
+  } finally {
+    btn.disabled=false; btn.textContent='💾 Salvar Registro';
+  }
+}
+
+function setSyncStatus(type, msg) {
+  const el = document.getElementById('sync-status');
+  el.style.display='flex';
+  const cls={ok:'sync-ok',err:'sync-err',loading:'sync-loading'}[type];
+  const dot={ok:'dot-ok',err:'dot-err',loading:'dot-loading'}[type];
+  el.className='sync-status '+cls;
+  el.innerHTML=`<div class="sync-dot ${dot}"></div><span>${msg}</span>`;
+}
+
+// ══ SAVE WEEKLY ══
+async function saveWeekly() {
+  const weekly = {
+    id: Date.now(), date: new Date().toISOString(),
+    weekRating: ratings.week, foodRating: ratings.food,
+    positive: document.getElementById('week-positive').value.trim(),
+    challenge: document.getElementById('week-challenge').value.trim(),
+    next: document.getElementById('week-next').value.trim(),
+    message: document.getElementById('week-message').value.trim()
+  };
+  const btn = document.getElementById('weekly-btn');
+  btn.disabled=true; btn.textContent='⏳ Salvando…';
+  const syncEl = document.getElementById('weekly-sync');
+  syncEl.style.display='flex'; syncEl.className='sync-status sync-loading';
+  syncEl.innerHTML='<div class="sync-dot dot-loading"></div><span>Sincronizando…</span>';
+  try {
+    const filename = `${currentPatientId}-weekly.json`;
+    const { content, sha } = await ghRead(filename);
+    const current = content || { patientId:currentPatientId, weekly:[], updatedAt:null };
+    current.weekly.unshift(weekly);
+    current.updatedAt = new Date().toISOString();
+    await ghWrite(filename, current, sha);
+    syncEl.className='sync-status sync-ok';
+    syncEl.innerHTML='<div class="sync-dot dot-ok"></div><span>Enviado para Taylan ✓</span>';
+    showToast('Autoavaliação salva 🌿');
+  } catch(e) {
+    console.error(e);
+    syncEl.className='sync-status sync-err';
+    syncEl.innerHTML='<div class="sync-dot dot-err"></div><span>Erro. Tente novamente.</span>';
+  } finally {
+    btn.disabled=false; btn.textContent='🌿 Salvar Autoavaliação';
+  }
+}
+
+// ══ HISTORY ══
+function getLocalEntries() {
+  return JSON.parse(localStorage.getItem('fh_local_'+currentPatientId)||'[]');
+}
+function renderHistory() {
+  const data = getLocalEntries();
+  const el = document.getElementById('history-list');
+  if (!data.length) {
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🌱</div><p>Nenhum registro ainda.<br>Seu diário está esperando por você.</p></div>`;
+    return;
+  }
+  el.innerHTML = data.map(e=>`
+    <div class="history-item">
+      <div class="history-date">${fmtDate(e.date)}${e.time?' · '+e.time:''}</div>
+      ${e.emotions?.length?`<span class="history-emotion">${e.emotions.slice(0,2).join(' · ')}</span>`:''}
+      <div class="history-trigger"><strong>${e.food||'—'}</strong></div>
+      ${e.context?`<div class="history-trigger" style="color:var(--text-soft);font-size:12px">${e.context}</div>`:''}
+      <div class="history-int">Intensidade: ${e.intensity}/10 · ${e.environment||''}</div>
+      ${e.action?`<div class="history-res">→ ${e.action}</div>`:''}
+    </div>`).join('');
+}
+
+// ══ INSIGHTS ══
+function renderInsights() {
+  const data = getLocalEntries();
+  const el = document.getElementById('insights-content');
+  if (!data.length) {
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><p>Faça alguns registros para ver seus padrões.</p></div>`;
+    return;
+  }
+  const total = data.length;
+  const avg = (data.reduce((s,e)=>s+parseInt(e.intensity||0),0)/total).toFixed(1);
+  const high = data.filter(e=>parseInt(e.intensity)>=8).length;
+  const emCount = {};
+  data.forEach(e=>(e.emotions||[]).forEach(em=>{ emCount[em]=(emCount[em]||0)+1; }));
+  const topEm = Object.entries(emCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  el.innerHTML = `
+    <div class="insight-card teal">
+      <div class="insight-number">${total}</div>
+      <div class="insight-label">Registros no total</div>
+      <div class="insight-detail">Intensidade média: <strong>${avg}/10</strong></div>
+    </div>
+    <div class="insight-card gold">
+      <div class="insight-number">${high}</div>
+      <div class="insight-label">Episódios intensos (≥8)</div>
+      <div class="insight-detail">${high>0?'Momentos para conversar com sua nutricionista.':'Ótimo! Nenhum episódio crítico. 🌟'}</div>
+    </div>
+    ${topEm.length?`
+    <div class="insight-card mint">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:17px;margin-bottom:12px">Emoções mais frequentes</div>
+      ${topEm.map(([em,cnt])=>`
+        <div class="bar-row">
+          <div class="bar-label">${em.length>15?em.slice(0,15)+'…':em}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(cnt/total*100)}%"></div></div>
+          <div class="bar-count">${cnt}×</div>
+        </div>`).join('')}
+    </div>`:''}`;
+}
+
+// ══ UTILS ══
+function resetForm() {
+  ['reg-food','reg-context','reg-emotion-other','reg-action-other','reg-alternative'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('reg-intensity').value=5;
+  updateSlider(document.getElementById('reg-intensity'));
+  document.getElementById('intensity-val').textContent='5';
+  document.querySelectorAll('.chip.selected').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('reg-time').value = new Date().toTimeString().slice(0,5);
+}
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+}
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
